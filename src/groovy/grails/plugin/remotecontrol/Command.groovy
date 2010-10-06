@@ -1,6 +1,7 @@
 package grails.plugin.remotecontrol
 
-class RemoteClosureDefinition implements Serializable {
+class Command implements Serializable {
+	byte[] instance
 	byte[] root
 	List supports = []
 }

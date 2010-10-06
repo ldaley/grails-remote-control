@@ -1,4 +1,4 @@
-package grails.plugin.remotecontrol.server
+package grails.plugin.remotecontrol.util
 
 /**
  * Allows us to hydrate objects with a custom classloader.
