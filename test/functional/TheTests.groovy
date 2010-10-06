@@ -9,4 +9,10 @@ class TheTests extends GroovyTestCase {
 		
 		assert name == "grails-remote-control"
 	}
+	
+	void testWithInnerClosures() {
+		assert [2,3,4] == RemoteControl.exec {
+			[1,2,3].collect { it + 1 }
+		}
+	}
 }
