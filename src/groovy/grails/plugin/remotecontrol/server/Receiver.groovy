@@ -18,12 +18,7 @@ class Receiver {
 	}
 	
 	protected Command readCommand(InputStream input) {
-		def baos = new ByteArrayOutputStream()
-		baos << input
-		
-		println "baos.size: ${baos.size()}"
-		
-		new ClassLoaderConfigurableObjectInputStream(grailsApplication.classLoader, new ByteArrayInputStream(baos.toByteArray())).readObject()
+		new ClassLoaderConfigurableObjectInputStream(grailsApplication.classLoader, input).readObject()
 	}
 	
 	protected Result invokeCommand(Command command) {

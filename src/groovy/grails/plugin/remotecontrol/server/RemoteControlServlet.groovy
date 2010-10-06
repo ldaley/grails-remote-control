@@ -8,7 +8,6 @@ import org.codehaus.groovy.grails.commons.ApplicationHolder
 class RemoteControlServlet extends HttpServlet {
 	
 	void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		println "received request ${request.contentLength}"
 		try {
 			if (request.contentType != ContentType.COMMAND.value) {
 				response.sendError(415, "Only grails remote control commands can be sent")
