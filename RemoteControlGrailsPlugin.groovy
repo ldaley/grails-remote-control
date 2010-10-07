@@ -27,6 +27,8 @@ class RemoteControlGrailsPlugin {
 	def documentation = "http://grails.org/plugin/remote-control"
 
 	def doWithWebDescriptor = { webXml ->
+		def remoteControlClass = getClass().classLoader.loadClass('grails.plugin.remotecontrol.RemoteControl')
+		
 		def servlets = webXml.servlet 
 		def lastServlet = servlets[servlets.size() - 1] 
 		lastServlet + { 
@@ -41,7 +43,7 @@ class RemoteControlGrailsPlugin {
 		lastMapping + { 
 			'servlet-mapping' { 
 				'servlet-name'('grails-remote-control') 
-				'url-pattern'("/grails-remote-control") 
+				'url-pattern'("/${remoteControlClass.RECEIVER_PATH}") 
 			} 
 		} 
 	}
