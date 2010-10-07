@@ -58,7 +58,8 @@ class SmokeTests extends GroovyTestCase {
 	}
 
 	/**
-	 * We can create and manipulate domain data
+	 * We can create and manipulate domain data. Each command operates in a
+	 * hibernate session that is flushed at the end of the command.
 	 */
 	void testWorkingWithDomain() {
 		def id = remote {
