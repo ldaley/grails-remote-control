@@ -29,11 +29,23 @@ class RemoteControlServlet extends HttpServlet {
 		}
 
 		response.contentType = ContentType.RESULT.value
-		receiver.execute(request.inputStream, response.outputStream)
+		
+		def persistenceInterceptor = getPersistenceInterceptor()
+		persistenceInterceptor?.init()
+		try {
+			receiver.execute(request.inputStream, response.outputStream)
+		} finally {
+			persistenceInterceptor?.flush()
+			persistenceInterceptor?.destroy()
+		}
 	}
 
 	def getReceiver() {
 		new Receiver(grailsApplication)
+	}
+	
+	def getPersistenceInterceptor() {
+		grailsApplication?.mainContext?.persistenceInterceptor
 	}
 	
 	def getGrailsApplication() {

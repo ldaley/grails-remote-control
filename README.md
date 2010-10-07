@@ -50,14 +50,14 @@ The remote control plugin solves this problem by allowing you to define closures
         def testIt() {
             def id = remote {
                 def person = new Person(name: "Me")
-                person.save(flush: true)
+                person.save()
                 person.id
             }
             
             // Somehow make some HTTP request and test that person is in the DB
             
             remote {
-                Person.get(id).delete(flush: true)
+                Person.get(id).delete()
             }
         }
     }

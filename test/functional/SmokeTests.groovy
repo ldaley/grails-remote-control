@@ -58,6 +58,25 @@ class SmokeTests extends GroovyTestCase {
 	}
 
 	/**
+	 * We can create and manipulate domain data
+	 */
+	void testWorkingWithDomain() {
+		def id = remote {
+			def person = new Person(name: "Me")
+			person.save()
+			person.id
+		}
+        
+		assert remote { Person.countByName("Me") } == 1
+		
+		remote {
+			Person.get(id).delete()
+		}
+		
+		assert remote { Person.countByName("Me") } == 0
+	}
+	
+	/**
 	 * Commands can contain other closures
 	 */
 	void testWithInnerClosures() {
