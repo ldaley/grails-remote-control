@@ -19,6 +19,17 @@ import grails.plugin.remotecontrol.client.*
 /**
  * This test case shows how to use the remote control and some of it's limitations
  * with regard to serialisation and scope.
+ * 
+ * The remote control object has an exec(Closure) method, and an alias for that as call(Closure).
+ * The call(Closure) variant allows the use of the Groovy language feature where you can essentially
+ * treat an object like a method, which is how “remote { … }” works below (i.e. it's really “remote.call { … }).
+ * This doesn't always work though as you will see (due to Groovy), so sometimes you need to use .exec().
+ * 
+ * Where we are passing a closure to the remote control object, that closure gets executed INSIDE the
+ * application we are functionally testing, which may be in a different JVM on a completely different machine.
+ * This works by sending the closure over HTTP to the application (which must have the remote-control plugin installed).
+ * 
+ * An example use for this would be creating/deleting domain data inside your remote application for testing purposes.
  */
 class SmokeTests extends GroovyTestCase {
 
