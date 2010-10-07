@@ -18,6 +18,11 @@ package grails.plugin.remotecontrol.client
 import grails.plugin.remotecontrol.Command
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 
+/**
+ * Serialises closures to Command objects that are suitable for transmission.
+ * 
+ * Finds the corresponding .class file for the closure and any inner closures.
+ */
 class CommandGenerator {
 
 	final ClassLoader classLoader
@@ -27,7 +32,7 @@ class CommandGenerator {
 	}
 	
 	CommandGenerator(ClassLoader classLoader) {
-		this.classLoader = classLoader ?: getClass().classLoader
+		this.classLoader = classLoader ?: Thread.currentThread().contextClassLoader
 	}
 	
 	Command generate(Closure closure) {

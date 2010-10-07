@@ -18,28 +18,41 @@ package grails.plugin.remotecontrol.client
 import grails.plugin.remotecontrol.*
 import grails.plugin.remotecontrol.util.*
 
+/**
+ * Responsible for sending a given command to a receiver over HTTP and 
+ * assembling up the returned Result.
+ */
 class Sender {
 
 	final receiverAddress
 	final classLoader
 	
+	/**
+	 * @param receiverAddress the full address to the remote receiver
+	 * @param classLoader the class loader to use when unserialising the result
+	 */
 	Sender(String receiverAddress, ClassLoader classLoader) {
 		this.receiverAddress = receiverAddress
 		this.classLoader = classLoader
 	}
 
-	Result send(Command command) {
-		openConnection().with {
-			setRequestProperty("Content-Type", ContentType.COMMAND.value)
-			setRequestProperty("accept", ContentType.RESULT.value)
-			doOutput = true
+	/**
+	 * Serialises the Command and sends it over HTTP, returning the Result.
+	 * 
+	 * @throws UnableToCommunicateWithReceiverException if there is any issue with the receiver.
+	 */
+	Result send(Command command) throws UnableToCommunicateWithReceiverException {
+		try {
+			openConnection().with {
+				setRequestProperty("Content-Type", ContentType.COMMAND.value)
+				setRequestProperty("accept", ContentType.RESULT.value)
+
+				doOutput = true
+				writeCommand(command, outputStream)
+				readResult(inputStream)
+			}
+		} catch (Exception e) {
 			
-			writeCommand(command, outputStream)
-			def result = readResult(inputStream)
-			
-			disconnect()
-			
-			result
 		}
 	}
 	
@@ -58,4 +71,9 @@ class Sender {
 		new ClassLoaderConfigurableObjectInputStream(classLoader, input).readObject()
 	}
 
+	static class UnableToCommunicateWithReceiverException extends IOException {
+		UnableToCommunicateWithReceiverException(message, Throwable cause) {
+			super(message as String, cause)
+		}
+	}
 }

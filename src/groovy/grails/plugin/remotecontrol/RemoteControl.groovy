@@ -16,14 +16,24 @@
 package grails.plugin.remotecontrol
 
 import grails.plugin.remotecontrol.client.*
+import grails.util.BuildSettingsHolder
 
 class RemoteControl {
 
+	static public final RECEIVER_PATH = "grails-remote-control"
+	 
 	static defaultReceiverAddress
 	
 	final classLoader
 	final receiverAddress
 	private final commandGenerator
+	
+	/**
+	 * Constructs an instance that is suitable for use in functional testing scenarios.
+	 */
+	RemoteControl() {
+		this(getFunctionalTestReceiverAddress(), Thread.currentThread().contextClassLoader)
+	}
 	
 	RemoteControl(String receiverAddress, ClassLoader classLoader) {
 		this.receiverAddress = receiverAddress
@@ -31,7 +41,7 @@ class RemoteControl {
 		this.commandGenerator = new CommandGenerator(classLoader)
 	}
 	
-	def execute(Closure command) {
+	def exec(Closure command) {
 		def result = sendCommand(generateCommand(command))
 		
 		if (result.wasNull) {
@@ -44,16 +54,16 @@ class RemoteControl {
 			result.value
 		}
 	}
-
-	static exec(Closure command) {
-		if (!defaultReceiverAddress) {
-			throw new IllegalStateException("Cannot use exec() as defaultReceiverAddress is not set")
-		}
-
-		// The contextClassLoader is set for each test type in GrailsTestTypeSupport
-		def classLoader = Thread.currentThread().contextClassLoader
-		
-		new RemoteControl(defaultReceiverAddress, classLoader).execute(command)
+	
+	def call(Closure command) {
+		exec(command)
+	}
+	
+	/**
+	 * Convenience method
+	 */
+	static execute(Closure command) {
+		new RemoteControl().exec(command)
 	}
 	
 	protected Command generateCommand(Closure command) {
@@ -62,6 +72,19 @@ class RemoteControl {
 	
 	protected Result sendCommand(Command command) {
 		new Sender(receiverAddress, classLoader).send(command)
+	}
+	
+	private static getFunctionalTestReceiverAddress() {
+		def base = getFunctionalTestBaseUrl()
+		if (!base) {
+			throw new IllegalStateException("Cannot get receiver address for functional testing as functional test base URL is not set. Are you calling this from a functional test?")
+		}
+		
+		base + RECEIVER_PATH
+	}
+	
+	private static getFunctionalTestBaseUrl() {
+		BuildSettingsHolder.settings?.functionalTestBaseUrl
 	}
 
 }

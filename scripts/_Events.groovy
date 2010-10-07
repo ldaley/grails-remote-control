@@ -13,13 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-eventTestSuiteStart = {
-	if (grailsSettings.functionalTestBaseUrl) {
-		def remoteControlClass = classLoader.loadClass("grails.plugin.remotecontrol.RemoteControl")
-		remoteControlClass.defaultReceiverAddress = grailsSettings.functionalTestBaseUrl + "grails-remote-control"
-	}
-}
-
 eventAllTestsStart = {
 	if (grailsAppName == "grails-remote-control") {
 		functionalTests << "functional"

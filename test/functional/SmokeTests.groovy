@@ -17,8 +17,10 @@ import grails.plugin.remotecontrol.RemoteControl
 
 class SmokeTests extends GroovyTestCase {
 
+	def remote = new RemoteControl()
+	
 	void testIt() {
-		def name = RemoteControl.exec {
+		def name = remote {
 			grailsApplication.metadata['app.name']
 		}
 		
@@ -26,7 +28,7 @@ class SmokeTests extends GroovyTestCase {
 	}
 	
 	void testWithInnerClosures() {
-		assert [2,3,4] == RemoteControl.exec {
+		assert [2,3,4] == remote {
 			[1,2,3].collect { it + 1 }
 		}
 	}
