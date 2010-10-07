@@ -20,37 +20,37 @@ import grails.plugin.remotecontrol.util.*
 
 class CommandInvoker {
 	
-	final ClassLoader classLoader
+	final ClassLoader parentLoader
 	final Command command
 	final Class rootClass
 	final List supportClasses
 	
 	private CommandInvoker(ClassLoader parentLoader, Command command) {
-		this.classLoader = new GroovyClassLoader(parentLoader)
+		this.parentLoader = parentLoader
 		this.command = command
-		this.rootClass = defineClass(command.root)
-		this.supportClasses = Collections.unmodifiableList(command.supports.collect { defineClass(it) })
 	}
 	
 	Result invokeAgainst(delegate) {
-		def instance = instantiate()
-		instance.resolveStrategy = Closure.DELEGATE_ONLY
-		instance.delegate = delegate
-		
 		try {
+			def instance = instantiate()
+			instance.resolveStrategy = Closure.DELEGATE_ONLY
+			instance.delegate = delegate
 			Result.forValue(instance.call())
-		} catch (thrown) {
+		} catch (Throwable thrown) {
 			Result.forThrown(thrown)
 		}
 	}
 	
 	def instantiate() {
+		def classLoader = new GroovyClassLoader(parentLoader)
+		defineClass(classLoader, command.root)
+		command.supports.collect { defineClass(classLoader, it) }
 		def input = new ByteArrayInputStream(command.instance)
 		def ois = new ClassLoaderConfigurableObjectInputStream(classLoader, input)
 		ois.readObject()
 	}
 	
-	protected Class defineClass(byte[] bytes) {
+	protected Class defineClass(ClassLoader classLoader, byte[] bytes) {
 		classLoader.defineClass(null, bytes, 0, bytes.length)
 	}
 }

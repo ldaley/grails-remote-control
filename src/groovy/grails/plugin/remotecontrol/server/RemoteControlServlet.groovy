@@ -23,17 +23,13 @@ import org.codehaus.groovy.grails.commons.ApplicationHolder
 class RemoteControlServlet extends HttpServlet {
 	
 	void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			if (request.contentType != ContentType.COMMAND.value) {
-				response.sendError(415, "Only grails remote control commands can be sent")
-				return
-			}
-
-			response.contentType = ContentType.RESULT.value
-			receiver.execute(request.inputStream, response.outputStream)
-		} catch (thrown) {
-			thrown.printStackTrace()
+		if (request.contentType != ContentType.COMMAND.value) {
+			response.sendError(415, "Only grails remote control commands can be sent")
+			return
 		}
+
+		response.contentType = ContentType.RESULT.value
+		receiver.execute(request.inputStream, response.outputStream)
 	}
 
 	def getReceiver() {

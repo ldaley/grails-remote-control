@@ -179,4 +179,26 @@ class SmokeTests extends GroovyTestCase {
 		}
 	}
 	
+	/**
+	 * Any classes referenced have to be available in the remote app,
+	 * and any classes defined in tests ARE NOT.
+	 */
+	void testCannotReferToClassesNotInTheApp() {
+		def a = new SmokeTestsLocal()
+		shouldFailWithCause(ClassNotFoundException) {
+			remote.exec { a }
+		}
+	}
+	
+	/**
+	 * Variation of above, but yields a different error.
+	 */
+	void testCannotInstantiateClassesNotInTheApp() {
+		shouldFailWithCause(NoClassDefFoundError) {
+			remote.exec { new SmokeTestsLocal() }
+		}
+	}
 }
+
+
+class SmokeTestsLocal implements Serializable {}

@@ -42,17 +42,24 @@ class Sender {
 	 * @throws UnableToCommunicateWithReceiverException if there is any issue with the receiver.
 	 */
 	Result send(Command command) throws UnableToCommunicateWithReceiverException {
-		try {
-			openConnection().with {
-				setRequestProperty("Content-Type", ContentType.COMMAND.value)
-				setRequestProperty("accept", ContentType.RESULT.value)
-
-				doOutput = true
-				writeCommand(command, outputStream)
-				readResult(inputStream)
-			}
-		} catch (Exception e) {
+		openConnection().with {
+			setRequestProperty("Content-Type", ContentType.COMMAND.value)
+			setRequestProperty("accept", ContentType.RESULT.value)
+			instanceFollowRedirects = true
+			doOutput = true
 			
+			writeCommand(command, outputStream)
+
+			try {
+				readResult(inputStream)
+			} catch (IOException e) {
+				def status = responseCode
+				if (status == -1) {
+					throw e
+				} else {
+					throw new UnableToCommunicateWithReceiverException("A non OK response was returned ($status): ${errorStream.text}", e)
+				}
+			}
 		}
 	}
 	
