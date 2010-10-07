@@ -47,9 +47,9 @@ class RemoteControl {
 		if (result.wasNull) {
 			null
 		} else if (result.wasUnserializable) {
-			throw new Exception("Result was unserialisable [$result.stringRepresentation]")
+			throw new UnserializableReturnException(result)
 		} else if (result.wasThrown) {
-			throw new Exception("exception was thrown", result.value)
+			throw new RemoteException(result.value)
 		} else {
 			result.value
 		}

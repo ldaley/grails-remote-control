@@ -14,22 +14,47 @@
  * limitations under the License.
  */
 import grails.plugin.remotecontrol.RemoteControl
+import grails.plugin.remotecontrol.client.*
 
 class SmokeTests extends GroovyTestCase {
 
 	def remote = new RemoteControl()
 	
-	void testIt() {
+	void testAccessTheAppContext() {
 		def name = remote {
 			grailsApplication.metadata['app.name']
 		}
 		
 		assert name == "grails-remote-control"
 	}
-	
+
 	void testWithInnerClosures() {
 		assert [2,3,4] == remote {
 			[1,2,3].collect { it + 1 }
 		}
 	}
+
+	void testThrowingException() {
+		def thrown = null
+		try {
+			remote { throw new Exception("bang!") }
+		} catch (RemoteException e) {
+			thrown = e.cause
+			assert thrown.class == Exception
+			assert thrown.message == "bang!"
+		}
+		
+		assert thrown
+	}
+	
+	void testUnserialisableReturn() {
+		shouldFail(UnserializableReturnException) {
+			remote.exec { System.out }
+		}
+	}
+	
+	void testReturningException() {
+		assert (remote { new Exception() }) instanceof Exception
+	}
+	
 }
