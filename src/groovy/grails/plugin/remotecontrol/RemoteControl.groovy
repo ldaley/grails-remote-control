@@ -80,7 +80,7 @@ class RemoteControl {
 			throw new IllegalStateException("Cannot get receiver address for functional testing as functional test base URL is not set. Are you calling this from a functional test?")
 		}
 		
-		base + RECEIVER_PATH
+		base.endsWith("/") ? base + RECEIVER_PATH : base + "/" + RECEIVER_PATH
 	}
 	
 	private static getFunctionalTestBaseUrl() {
