@@ -16,6 +16,7 @@
 package grails.plugin.remotecontrol.client
 
 import grails.plugin.remotecontrol.Command
+import grails.plugin.remotecontrol.util.ClosureUtils
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 
 /**
@@ -36,10 +37,11 @@ class CommandGenerator {
 	}
 	
 	Command generate(Closure closure) {
-		def closureClass = closure.class
+		def closureClass = ClosureUtils.getRootClosure(closure).class
 		def classFile = getClassFile(closureClass)
 		
 		new Command(
+			instance: serializeInstance(closure),
 			root: toByteArray(classFile),
 			supports: findSupportingClassFiles(closureClass).collect { toByteArray(it) }
 		)
@@ -62,6 +64,10 @@ class CommandGenerator {
 	
 	protected File getClassFile(Class closureClass) {
 		def classFileResource = classLoader.findResource(getClassFileResourceName(closureClass))
+		if (classFileResource == null) {
+			throw new IllegalStateException("Could not find class file for class ${closureClass}")
+		}
+		
 		new File(classFileResource.file)
 	}
 	
@@ -71,6 +77,22 @@ class CommandGenerator {
 	
 	protected String getClassFileResourceName(Class closureClass) {
 		getClassFileResourceBase(closureClass) + ".class"
+	}
+	
+	protected serializeInstance(Closure closure) {
+		def cloned = closure.clone()
+		
+		def nullOutTarget = ClosureUtils.getRootClosure(cloned)
+		Closure.metaClass.setAttribute(nullOutTarget, 'owner', null)
+		Closure.metaClass.setAttribute(nullOutTarget, 'thisObject', null)
+		nullOutTarget.delegate = null
+		
+		def baos = new ByteArrayOutputStream()
+		def oos = new ObjectOutputStream(baos)
+		oos.writeObject(cloned)
+		oos.close()
+		
+		baos.toByteArray()
 	}
 	
 }

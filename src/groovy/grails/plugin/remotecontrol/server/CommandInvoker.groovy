@@ -16,6 +16,7 @@
 package grails.plugin.remotecontrol.server
 
 import grails.plugin.remotecontrol.*
+import grails.plugin.remotecontrol.util.*
 
 class CommandInvoker {
 	
@@ -26,7 +27,7 @@ class CommandInvoker {
 	
 	private CommandInvoker(ClassLoader parentLoader, Command command) {
 		this.classLoader = new GroovyClassLoader(parentLoader)
-		
+		this.command = command
 		this.rootClass = defineClass(command.root)
 		this.supportClasses = Collections.unmodifiableList(command.supports.collect { defineClass(it) })
 	}
@@ -44,7 +45,9 @@ class CommandInvoker {
 	}
 	
 	def instantiate() {
-		rootClass.newInstance(null, null)
+		def input = new ByteArrayInputStream(command.instance)
+		def ois = new ClassLoaderConfigurableObjectInputStream(classLoader, input)
+		ois.readObject()
 	}
 	
 	protected Class defineClass(byte[] bytes) {

@@ -16,10 +16,28 @@
 import grails.plugin.remotecontrol.RemoteControl
 import grails.plugin.remotecontrol.client.*
 
+/**
+ * This test case shows how to use the remote control and some of it's limitations
+ * with regard to serialisation and scope.
+ */
 class SmokeTests extends GroovyTestCase {
 
 	def remote = new RemoteControl()
 	
+	// Used in a later test
+	def anIvar = 2
+	
+	/**
+	 * The result of the command run on the server is sent back and is returned
+	 */
+	void testReturingValues() {
+		assert remote { 1 + 1 } == 2
+	}
+	
+	/**
+	 * The command is resolved against the application context,
+	 * so we can access any beans defined there
+	 */
 	void testAccessTheAppContext() {
 		def name = remote {
 			grailsApplication.metadata['app.name']
@@ -28,12 +46,20 @@ class SmokeTests extends GroovyTestCase {
 		assert name == "grails-remote-control"
 	}
 
+	/**
+	 * Commands can contain other closures
+	 */
 	void testWithInnerClosures() {
 		assert [2,3,4] == remote {
 			[1,2,3].collect { it + 1 }
 		}
 	}
 
+	/**
+	 * If the command throwns an exception, we throw a RemoteException
+	 * client side with the actual exception instance that was thrown server
+	 * side as the cause
+	 */
 	void testThrowingException() {
 		def thrown = null
 		try {
@@ -47,14 +73,99 @@ class SmokeTests extends GroovyTestCase {
 		assert thrown
 	}
 	
+	/**
+	 * If the command returns something that is unserialisable, we thrown an UnserializableReturnException
+	 */
 	void testUnserialisableReturn() {
 		shouldFail(UnserializableReturnException) {
 			remote.exec { System.out }
 		}
 	}
 	
+	/**
+	 * If the command returns an exception but does not throw it, we just return the exception
+	 */
 	void testReturningException() {
 		assert (remote { new Exception() }) instanceof Exception
+	}
+	
+	/**
+	 * We can access lexical scope (within limits)
+	 */
+	void testAccessingLexicalScope() {
+		def a = 1
+		assert remote { a + 1 } == 2
+	}
+
+	/**
+	 * Anything in lexical scope we access must be serialisable
+	 */
+	void testAccessingNonSerializableLexicalScope() {
+		def a = System.out
+		shouldFail(NotSerializableException) {
+			remote.exec { a }
+		}
+	}
+	
+	/**
+	 * Non existant vars cause NPEs 
+	 */
+	void testAccessingNonExistantVar() {
+		def thrown 
+		try {
+			remote { iDontExist * 2 }
+		} catch (RemoteException e) {
+			thrown = e.cause
+			assert thrown instanceof NullPointerException
+			assert thrown.message == "Cannot invoke method multiply() on null object"
+		}
+		
+		assert thrown
+	}
+	
+	/**
+	 * Owner ivars can't be accessed because they aren't really lexical
+	 * so get treated as bean names from the app context
+	 */
+	void testAccessingIvar() {
+		def thrown 
+		try {
+			remote { anIvar * 2 }
+		} catch (RemoteException e) {
+			thrown = e.cause
+			assert thrown instanceof NullPointerException
+			assert thrown.message == "Cannot invoke method multiply() on null object"
+		}
+		
+		assert thrown
+	}
+	
+	/**
+	 * We can pass curried commands
+	 */
+	void testCurryingCommands() {
+		def command = { it + 2 }
+		assert remote.exec(command.curry(2)) == 4
+	}
+	
+	/**
+	 * We can curry a command as many times as we need to
+	 */
+	void testCurryingCommandsMoreThanOnce() {
+		def command = { a, b -> a + b }
+		def curry1 = command.curry(1)
+		def curry2 = curry1.curry(1)
+		
+		assert remote.exec(curry2) == 2
+	}
+	
+	/**
+	 * Like everything else, currying args must be serialisable
+	 */
+	void testCurryingArgsMustBeSerializable() {
+		shouldFail(NotSerializableException) {
+			remote.exec({ it }.curry(System.out))
+		}
 	}
 	
 }
