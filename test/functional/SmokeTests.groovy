@@ -13,10 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package grails.plugin.remotecontrol
+import grails.plugin.remotecontrol.RemoteControl
 
-class Command implements Serializable {
-	byte[] instance
-	byte[] root
-	List supports = []
+class SmokeTests extends GroovyTestCase {
+
+	void testIt() {
+		def name = RemoteControl.exec {
+			grailsApplication.metadata['app.name']
+		}
+		
+		assert name == "grails-remote-control"
+	}
+	
+	void testWithInnerClosures() {
+		assert [2,3,4] == RemoteControl.exec {
+			[1,2,3].collect { it + 1 }
+		}
+	}
 }
