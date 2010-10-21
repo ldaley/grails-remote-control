@@ -30,12 +30,12 @@ class CommandInvoker {
 		this.command = command
 	}
 	
-	Result invokeAgainst(delegate) {
+	Result invokeAgainst(delegate, arg = null) {
 		try {
 			def instance = instantiate()
 			instance.resolveStrategy = Closure.DELEGATE_ONLY
 			instance.delegate = delegate
-			Result.forValue(instance.call())
+			Result.forValue(invoke(instance, arg))
 		} catch (Throwable thrown) {
 			Result.forThrown(thrown)
 		}
@@ -48,6 +48,14 @@ class CommandInvoker {
 		def input = new ByteArrayInputStream(command.instance)
 		def ois = new ClassLoaderConfigurableObjectInputStream(classLoader, input)
 		ois.readObject()
+	}
+	
+	protected invoke(instance, arg = null) {
+		if (instance.maximumNumberOfParameters < 1) {
+			instance()
+		} else {
+			instance(arg)
+		}
 	}
 	
 	protected Class defineClass(ClassLoader classLoader, byte[] bytes) {

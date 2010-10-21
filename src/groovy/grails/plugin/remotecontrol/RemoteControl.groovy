@@ -41,8 +41,8 @@ class RemoteControl {
 		this.commandGenerator = new CommandGenerator(classLoader)
 	}
 	
-	def exec(Closure command) {
-		def result = sendCommand(generateCommand(command))
+	def exec(Closure[] commands) {
+		def result = sendCommandChain(generateCommandChain(commands))
 		
 		if (result.wasNull) {
 			null
@@ -54,24 +54,24 @@ class RemoteControl {
 			result.value
 		}
 	}
-	
-	def call(Closure command) {
-		exec(command)
+		
+	def call(Closure[] commands) {
+		exec(commands)
 	}
 	
 	/**
 	 * Convenience method
 	 */
-	static execute(Closure command) {
-		new RemoteControl().exec(command)
+	static execute(Closure[] commands) {
+		new RemoteControl().exec(commands)
 	}
 	
-	protected Command generateCommand(Closure command) {
-		commandGenerator.generate(command)
+	protected CommandChain generateCommandChain(Closure[] commands) {
+		new CommandChain(commands: commands.collect { commandGenerator.generate(it) })
 	}
 	
-	protected Result sendCommand(Command command) {
-		new Sender(receiverAddress, classLoader).send(command)
+	protected Result sendCommandChain(CommandChain commandChain) {
+		new Sender(receiverAddress, classLoader).send(commandChain)
 	}
 	
 	private static getFunctionalTestReceiverAddress() {

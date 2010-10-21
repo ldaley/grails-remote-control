@@ -218,6 +218,15 @@ class SmokeTests extends GroovyTestCase {
 			remote.exec { new SmokeTestsLocal() }
 		}
 	}
+	
+	/**
+	 * Multiple commands can be sent, the return value of the previous
+	 * command is passed to the next command as it's single argument
+	 */
+	void testCommandChaining() {
+		remote.exec({ 1 }, { it + 1 }, { it + 1 }) == 3
+	}
+
 }
 
 

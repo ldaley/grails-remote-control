@@ -23,6 +23,8 @@ class Result implements Serializable {
 	String stringRepresentation = null
 	Serializable value = null
 	
+	transient unserializable = null
+	
 	static forNull() {
 		new Result(wasNull: true)
 	}
@@ -44,17 +46,18 @@ class Result implements Serializable {
 		)
 	}
 	
-	private static forUnserializable(unserialisable) {
+	private static forUnserializable(unserializable) {
 		new Result(
 			wasUnserializable: true,
-			stringRepresentation: unserialisable.toString()
+			stringRepresentation: unserializable.toString(),
+			unserializable: unserializable
 		)
 	}
 	
-	private static forSerializable(Serializable serialisable) {
+	private static forSerializable(Serializable serializable) {
 		new Result(
-			value: serialisable,
-			stringRepresentation: serialisable.toString()
+			value: serializable,
+			stringRepresentation: serializable.toString()
 		)
 	}
 }

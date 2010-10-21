@@ -64,6 +64,49 @@ The remote control plugin solves this problem by allowing you to define closures
 
 This test will now working when testing agains a WAR or a local version. The closures passed to `remote` are sent over HTTP to the running application and executed there, so it doesn't matter where the application is.
 
+#### Chaining
+
+Closures can be *chained*, with the return value of the previous closure being passed as an argument to the next closure in the chain. This is done on the server side, so it's ok for a closure to return a non serialisable value to be given to the next one. An example use for this would be reusing a closure to fetch some value, and then using another closure to process it.
+
+    import grails.plugin.remotecontrol.RemoteControl
+    
+    class MyFunctionalTest extends GroovyTestCase {
+        
+        def remote = new RemoteControl()
+        
+        def getPerson = { id -> Person.get(id) }
+        
+        def modifyPerson(id, Closure modifications) {
+            remote.execute(getPerson.curry(id), modifications) 
+        }
+        
+        def testIt() {
+            def id = remote {
+                def person = new Person(name: "Me")
+                person.save()
+                person.id
+            }
+            
+            // Somehow make some HTTP request and test that person is in the DB
+            
+            // Change the name
+            modifyPerson(id) { 
+                it.setName("New Name")
+                it.save(flush: true)
+                null // return must be serialisable
+            }
+            
+            // Somehow make some HTTP request and test that the person's name has changed
+            
+            // Cleanup
+            modifyPerson(id) {
+                it.delete()
+            }
+        }
+    }
+
+#### More Examples
+
 To see some more usage examples of a remote control, see the [demonstration test case](http://github.com/alkemist/grails-remote-control/blob/master/test/functional/SmokeTests.groovy) in the project.
 
 ### Testing Remote Apps

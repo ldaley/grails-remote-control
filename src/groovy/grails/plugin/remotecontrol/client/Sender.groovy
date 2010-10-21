@@ -41,14 +41,14 @@ class Sender {
 	 * 
 	 * @throws UnableToCommunicateWithReceiverException if there is any issue with the receiver.
 	 */
-	Result send(Command command) throws UnableToCommunicateWithReceiverException {
+	Result send(CommandChain commandChain) throws UnableToCommunicateWithReceiverException {
 		openConnection().with {
 			setRequestProperty("Content-Type", ContentType.COMMAND.value)
 			setRequestProperty("accept", ContentType.RESULT.value)
 			instanceFollowRedirects = true
 			doOutput = true
 			
-			writeCommand(command, outputStream)
+			writeCommandChain(commandChain, outputStream)
 
 			try {
 				readResult(inputStream)
@@ -67,9 +67,9 @@ class Sender {
 		new URL(receiverAddress).openConnection()
 	}
 	
-	protected writeCommand(Command command, OutputStream output) {
+	protected writeCommandChain(CommandChain commandChain, OutputStream output) {
 		def oos = new ObjectOutputStream(output)
-		oos << command
+		oos << commandChain
 		oos.flush()
 		oos.close()
 	}

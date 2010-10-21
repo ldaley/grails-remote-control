@@ -27,17 +27,17 @@ class Receiver {
 	}
 	
 	void execute(InputStream input, OutputStream output) {
-		def command = readCommand(input)
-		def result = invokeCommand(command)
+		def commandChain = readCommandChain(input)
+		def result = invokeCommandChain(commandChain)
 		writeResult(result, output)
 	}
 	
-	protected Command readCommand(InputStream input) {
+	protected CommandChain readCommandChain(InputStream input) {
 		new ClassLoaderConfigurableObjectInputStream(grailsApplication.classLoader, input).readObject()
 	}
 	
-	protected Result invokeCommand(Command command) {
-		new CommandInvoker(grailsApplication.classLoader, command).invokeAgainst(grailsApplication.mainContext)
+	protected Result invokeCommandChain(CommandChain commandChain) {
+		new CommandChainInvoker(grailsApplication.classLoader, commandChain).invokeAgainst(grailsApplication.mainContext)
 	}
 	
 	protected writeResult(Result result, OutputStream output) {
