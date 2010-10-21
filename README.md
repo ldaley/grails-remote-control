@@ -77,7 +77,9 @@ Closures can be *chained*, with the return value of the previous closure being p
         def getPerson = { id -> Person.get(id) }
         
         def modifyPerson(id, Closure modifications) {
-            remote.execute(getPerson.curry(id), modifications) 
+            // pass the result of the getPerson command to the 
+            // given modifications command
+            remote.exec(getPerson.curry(id), modifications) 
         }
         
         def testIt() {
@@ -104,6 +106,10 @@ Closures can be *chained*, with the return value of the previous closure being p
             }
         }
     }
+
+A more concise example of how values are passed to the next command in the chain would be…
+
+    assert remote.exec({ 1 }, { it + 1 }, { it + 1 }) == 3
 
 #### More Examples
 
