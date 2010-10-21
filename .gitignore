@@ -4,3 +4,5 @@ target
 .project
 .DS_Store
 *.log
+*.zip
+*.xml
