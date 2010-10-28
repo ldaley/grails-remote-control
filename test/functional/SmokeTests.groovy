@@ -46,12 +46,12 @@ class SmokeTests extends GroovyTestCase {
 	}
 	
 	/**
-	 * The command is resolved against the application context,
+	 * The delegate of the command contains the app context under 'ctx',
 	 * so we can access any beans defined there
 	 */
 	void testAccessTheAppContext() {
 		def name = remote {
-			grailsApplication.metadata['app.name']
+			ctx.grailsApplication.metadata['app.name']
 		}
 		
 		assert name == "grails-remote-control"
@@ -237,8 +237,8 @@ class SmokeTests extends GroovyTestCase {
 			remote.exec { theService.value = 1 }
 		}
 		
-		remote.exec { theService.setValue(1) }
-		remote.exec { theService.setProperty('value', 1) }
+		remote.exec { ctx.theService.setValue(1) }
+		remote.exec { ctx.theService.setProperty('value', 1) }
 	}
 	
 	/**
@@ -249,10 +249,10 @@ class SmokeTests extends GroovyTestCase {
 	void testCannotCallMethodsDynamicaly() {
 		def methodName = "setValue"
 		shouldFailWithCause(NoClassDefFoundError) {
-			remote.exec { theService."$methodName"(1) }
+			remote.exec { ctx.theService."$methodName"(1) }
 		}
 		
-		remote.exec { theService.invokeMethod(methodName, 1) }
+		remote.exec { ctx.theService.invokeMethod(methodName, 1) }
 	}
 	
 }

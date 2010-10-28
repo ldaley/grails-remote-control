@@ -37,7 +37,11 @@ class Receiver {
 	}
 	
 	protected Result invokeCommandChain(CommandChain commandChain) {
-		new CommandChainInvoker(grailsApplication.classLoader, commandChain).invokeAgainst(grailsApplication.mainContext)
+		new CommandChainInvoker(grailsApplication.classLoader, commandChain).invokeAgainst(createCommandChainDelegate())
+	}
+	
+	protected createCommandChainDelegate() {
+		[ctx: grailsApplication.mainContext]
 	}
 	
 	protected writeResult(Result result, OutputStream output) {
