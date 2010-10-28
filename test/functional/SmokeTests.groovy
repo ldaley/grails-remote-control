@@ -138,23 +138,7 @@ class SmokeTests extends GroovyTestCase {
 			remote.exec { a }
 		}
 	}
-	
-	/**
-	 * Non existant vars cause NPEs 
-	 */
-	void testAccessingNonExistantVar() {
-		def thrown 
-		try {
-			remote { iDontExist * 2 }
-		} catch (RemoteException e) {
-			thrown = e.cause
-			assert thrown instanceof NullPointerException
-			assert thrown.message == "Cannot invoke method multiply() on null object"
-		}
 		
-		assert thrown
-	}
-	
 	/**
 	 * Owner ivars can't be accessed because they aren't really lexical
 	 * so get treated as bean names from the app context
@@ -165,8 +149,7 @@ class SmokeTests extends GroovyTestCase {
 			remote { anIvar * 2 }
 		} catch (RemoteException e) {
 			thrown = e.cause
-			assert thrown instanceof NullPointerException
-			assert thrown.message == "Cannot invoke method multiply() on null object"
+			assert thrown instanceof MissingPropertyException
 		}
 		
 		assert thrown
@@ -226,6 +209,23 @@ class SmokeTests extends GroovyTestCase {
 	 */
 	void testCommandChaining() {
 		remote.exec({ 1 }, { it + 1 }, { it + 1 }) == 3
+	}
+	
+	/**
+	 * The delegate of commands is like a map and can store properties.
+	 */
+	void testCanUseDelegateStorageAlongChain() {
+		remote.exec({ num = 1 }, { num = num + 1 }, { num + 1 }) == 3
+	}
+	
+	/**
+	 * Trying to access a property that is not existing in the delegate
+	 * causes a MissingPropertyException
+	 */
+	void testAccessingNonExistantPropertyFromDelegateCausesMPE() {
+		shouldFailWithCause(MissingPropertyException) {
+			remote.exec { iDontExist == true }
+		}
 	}
 	
 	/**

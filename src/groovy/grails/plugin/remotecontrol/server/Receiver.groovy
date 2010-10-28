@@ -37,10 +37,14 @@ class Receiver {
 	}
 	
 	protected Result invokeCommandChain(CommandChain commandChain) {
-		new CommandChainInvoker(grailsApplication.classLoader, commandChain).invokeAgainst(createCommandChainDelegate())
+		new CommandChainInvoker(grailsApplication.classLoader, commandChain).invokeAgainst(createCommandDelegate())
 	}
 	
-	protected createCommandChainDelegate() {
+	protected createCommandDelegate() {
+		new StorageCommandDelegate(createStorageCommandDelegateSeed())
+	}
+	
+	protected Map createStorageCommandDelegateSeed() {
 		[ctx: grailsApplication.mainContext]
 	}
 	
