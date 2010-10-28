@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package grails.plugin.remotecontrol
+package grails.plugin.remotecontrol.client
 
-enum ContentType {
+import grails.plugin.remotecontrol.CommandChain
+import grails.plugin.remotecontrol.Result
+
+/**
+ * A transport is used by a remote control for sending a command and receiving the result.
+ */
+interface Transport {
 	
-	COMMAND("application/grails-remote-control-command"),
-	RESULT("application/grails-remote-control-result")
-	
-	final value
-	
-	ContentType(value) {
-		this.value = value
-	}
+	Result send(CommandChain commandChain) throws IOException
 	
 }

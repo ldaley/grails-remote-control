@@ -34,7 +34,7 @@ class RemoteControlGrailsPlugin {
 		lastServlet + { 
 			servlet { 
 				'servlet-name'('grails-remote-control') 
-				'servlet-class'('grails.plugin.remotecontrol.server.RemoteControlServlet') 
+				'servlet-class'('grails.plugin.remotecontrol.http.RemoteControlServlet') 
 				'load-on-startup'(1) 
 			} 
 		} 

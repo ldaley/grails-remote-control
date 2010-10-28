@@ -13,35 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package grails.plugin.remotecontrol.client
+package grails.plugin.remotecontrol.http
 
 import grails.plugin.remotecontrol.*
 import grails.plugin.remotecontrol.util.*
+import grails.plugin.remotecontrol.client.AbstractTransport
 
 /**
- * Responsible for sending a given command to a receiver over HTTP and 
- * assembling up the returned Result.
+ * Transports commands over http to the given receiver address.
  */
-class Sender {
+class HttpTransport extends AbstractTransport {
 
 	final receiverAddress
-	final classLoader
 	
 	/**
 	 * @param receiverAddress the full address to the remote receiver
 	 * @param classLoader the class loader to use when unserialising the result
 	 */
-	Sender(String receiverAddress, ClassLoader classLoader) {
+	HttpTransport(String receiverAddress, ClassLoader classLoader) {
+		super(classLoader)
 		this.receiverAddress = receiverAddress
-		this.classLoader = classLoader
 	}
 
 	/**
 	 * Serialises the Command and sends it over HTTP, returning the Result.
 	 * 
-	 * @throws UnableToCommunicateWithReceiverException if there is any issue with the receiver.
+	 * @throws IOException if there is any issue with the receiver.
 	 */
-	Result send(CommandChain commandChain) throws UnableToCommunicateWithReceiverException {
+	Result send(CommandChain commandChain) throws IOException {
 		openConnection().with {
 			setRequestProperty("Content-Type", ContentType.COMMAND.value)
 			setRequestProperty("accept", ContentType.RESULT.value)
@@ -49,38 +48,12 @@ class Sender {
 			doOutput = true
 			
 			writeCommandChain(commandChain, outputStream)
-
-			try {
-				readResult(inputStream)
-			} catch (IOException e) {
-				def status = responseCode
-				if (status == -1) {
-					throw e
-				} else {
-					throw new UnableToCommunicateWithReceiverException("A non OK response was returned ($status): ${errorStream.text}", e)
-				}
-			}
+			readResult(inputStream)
 		}
 	}
 	
 	def openConnection() {
 		new URL(receiverAddress).openConnection()
 	}
-	
-	protected writeCommandChain(CommandChain commandChain, OutputStream output) {
-		def oos = new ObjectOutputStream(output)
-		oos << commandChain
-		oos.flush()
-		oos.close()
-	}
-	
-	protected Result readResult(InputStream input) {
-		new ClassLoaderConfigurableObjectInputStream(classLoader, input).readObject()
-	}
 
-	static class UnableToCommunicateWithReceiverException extends IOException {
-		UnableToCommunicateWithReceiverException(message, Throwable cause) {
-			super(message as String, cause)
-		}
-	}
 }

@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package grails.plugin.remotecontrol.server
+package grails.plugin.remotecontrol.http
 
 import javax.servlet.*
 import javax.servlet.http.*
 import grails.plugin.remotecontrol.*
+import grails.plugin.remotecontrol.server.*
 import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 class RemoteControlServlet extends HttpServlet {

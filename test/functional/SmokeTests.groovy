@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 import grails.plugin.remotecontrol.RemoteControl
-import grails.plugin.remotecontrol.client.*
+import grails.plugin.remotecontrol.client.RemoteException
+import grails.plugin.remotecontrol.client.UnserializableReturnException
 
 /**
  * This test case shows how to use the remote control and some of it's limitations

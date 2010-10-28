@@ -18,60 +18,19 @@ package grails.plugin.remotecontrol
 import grails.plugin.remotecontrol.client.*
 import grails.util.BuildSettingsHolder
 
-class RemoteControl {
+import grails.plugin.remotecontrol.http.HttpTransport
+
+/**
+ * Adds grails specific convenient no arg constructor
+ */
+class RemoteControl extends grails.plugin.remotecontrol.client.RemoteControl {
 
 	static public final RECEIVER_PATH = "grails-remote-control"
 	 
 	static defaultReceiverAddress
 	
-	final classLoader
-	final receiverAddress
-	private final commandGenerator
-	
-	/**
-	 * Constructs an instance that is suitable for use in functional testing scenarios.
-	 */
 	RemoteControl() {
-		this(getFunctionalTestReceiverAddress(), Thread.currentThread().contextClassLoader)
-	}
-	
-	RemoteControl(String receiverAddress, ClassLoader classLoader) {
-		this.receiverAddress = receiverAddress
-		this.classLoader = classLoader
-		this.commandGenerator = new CommandGenerator(classLoader)
-	}
-	
-	def exec(Closure[] commands) {
-		def result = sendCommandChain(generateCommandChain(commands))
-		
-		if (result.wasNull) {
-			null
-		} else if (result.wasUnserializable) {
-			throw new UnserializableReturnException(result)
-		} else if (result.wasThrown) {
-			throw new RemoteException(result.value)
-		} else {
-			result.value
-		}
-	}
-		
-	def call(Closure[] commands) {
-		exec(commands)
-	}
-	
-	/**
-	 * Convenience method
-	 */
-	static execute(Closure[] commands) {
-		new RemoteControl().exec(commands)
-	}
-	
-	protected CommandChain generateCommandChain(Closure[] commands) {
-		new CommandChain(commands: commands.collect { commandGenerator.generate(it) })
-	}
-	
-	protected Result sendCommandChain(CommandChain commandChain) {
-		new Sender(receiverAddress, classLoader).send(commandChain)
+		super(new HttpTransport(getFunctionalTestReceiverAddress(), Thread.currentThread().contextClassLoader), Thread.currentThread().contextClassLoader)
 	}
 	
 	private static getFunctionalTestReceiverAddress() {
