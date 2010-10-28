@@ -15,7 +15,7 @@
  */
 class RemoteControlGrailsPlugin {
 
-	def version = "1.0-alpha-2"
+	def version = "1.0-alpha-3"
 	def grailsVersion = "1.3.5 > *"
 	def dependsOn = [:]
 	def pluginExcludes = ["grails-app/**/*", "scripts/**/*"]
