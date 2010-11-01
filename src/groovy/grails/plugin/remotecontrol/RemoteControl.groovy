@@ -15,15 +15,13 @@
  */
 package grails.plugin.remotecontrol
 
-import grails.plugin.remotecontrol.client.*
 import grails.util.BuildSettingsHolder
-
-import grails.plugin.remotecontrol.http.HttpTransport
+import groovyx.remote.transport.http.HttpTransport
 
 /**
  * Adds grails specific convenient no arg constructor
  */
-class RemoteControl extends grails.plugin.remotecontrol.client.RemoteControl {
+class RemoteControl extends groovyx.remote.client.RemoteControl {
 
 	static public final RECEIVER_PATH = "grails-remote-control"
 	 

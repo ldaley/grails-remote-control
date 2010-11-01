@@ -15,7 +15,7 @@
  */
 class RemoteControlGrailsPlugin {
 
-	def version = "1.0-alpha-3"
+	def version = "1.0-SNAPSHOT"
 	def grailsVersion = "1.3.5 > *"
 	def dependsOn = [:]
 	def pluginExcludes = ["grails-app/**/*", "scripts/**/*"]
@@ -34,7 +34,7 @@ class RemoteControlGrailsPlugin {
 		lastServlet + { 
 			servlet { 
 				'servlet-name'('grails-remote-control') 
-				'servlet-class'('grails.plugin.remotecontrol.http.RemoteControlServlet') 
+				'servlet-class'('grails.plugin.remotecontrol.RemoteControlServlet') 
 				'load-on-startup'(1) 
 			} 
 		} 

@@ -13,43 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package grails.plugin.remotecontrol.http
+package grails.plugin.remotecontrol
 
 import javax.servlet.*
 import javax.servlet.http.*
-import grails.plugin.remotecontrol.*
-import grails.plugin.remotecontrol.server.*
+import groovyx.remote.server.Receiver
 import org.codehaus.groovy.grails.commons.ApplicationHolder
 
-class RemoteControlServlet extends HttpServlet {
+class RemoteControlServlet extends groovyx.remote.transport.http.RemoteControlServlet {
 	
 	void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (request.contentType != ContentType.COMMAND.value) {
-			response.sendError(415, "Only grails remote control commands can be sent")
-			return
+		try {
+			super.doPost(request, response)
+		} catch (Throwable e) {
+			e.printStackTrace()
+			throw e
 		}
-
-		response.contentType = ContentType.RESULT.value
-		
-		def persistenceInterceptor = getPersistenceInterceptor()
+	}
+	void doExecute(InputStream input, OutputStream output) {
+		println "here"
+		def persistenceInterceptor = grailsApplication?.mainContext?.persistenceInterceptor
 		persistenceInterceptor?.init()
 		try {
-			receiver.execute(request.inputStream, response.outputStream)
+			super.doExecute(input, output)
 		} finally {
 			persistenceInterceptor?.flush()
 			persistenceInterceptor?.destroy()
 		}
 	}
-
-	def getReceiver() {
-		new Receiver(grailsApplication)
-	}
-	
-	def getPersistenceInterceptor() {
-		grailsApplication?.mainContext?.persistenceInterceptor
-	}
 	
 	def getGrailsApplication() {
 		ApplicationHolder.application
 	}
+	
+	protected Receiver createReceiver() {
+		new Receiver(grailsApplication.classLoader, [ctx: grailsApplication.mainContext])
+	}
+	
 }
