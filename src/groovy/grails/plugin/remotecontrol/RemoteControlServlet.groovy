@@ -22,16 +22,7 @@ import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 class RemoteControlServlet extends groovyx.remote.transport.http.RemoteControlServlet {
 	
-	void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			super.doPost(request, response)
-		} catch (Throwable e) {
-			e.printStackTrace()
-			throw e
-		}
-	}
 	void doExecute(InputStream input, OutputStream output) {
-		println "here"
 		def persistenceInterceptor = grailsApplication?.mainContext?.persistenceInterceptor
 		persistenceInterceptor?.init()
 		try {
