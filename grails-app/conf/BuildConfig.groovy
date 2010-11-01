@@ -9,8 +9,8 @@ grails.project.dependency.resolution = {
 		grailsHome()
 		mavenLocal()
 		mavenCentral()
-		mavenRepo "http://snapshots.repository.codehaus.org"
+		mavenRepo "http://repository.codehaus.org"
 		
-		test "org.codehaus.groovy.modules.remote:remote-transport-http:0.1-SNAPSHOT"
+		compile "org.codehaus.groovy.modules.remote:remote-transport-http:0.1"
 	}
 }
