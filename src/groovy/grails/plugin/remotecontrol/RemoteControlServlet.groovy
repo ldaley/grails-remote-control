@@ -38,7 +38,7 @@ class RemoteControlServlet extends groovyx.remote.transport.http.RemoteControlSe
 	}
 	
 	protected Receiver createReceiver() {
-		new Receiver(grailsApplication.classLoader, [ctx: grailsApplication.mainContext])
+		new Receiver(grailsApplication.classLoader, [app: grailsApplication, ctx: grailsApplication.mainContext])
 	}
 	
 }
