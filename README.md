@@ -111,6 +111,19 @@ A more concise example of how values are passed to the next command in the chain
 
     assert remote.exec({ 1 }, { it + 1 }, { it + 1 }) == 3
 
+#### Context
+
+The Groovy Remote Control library establishes a [command context](http://groovy.codehaus.org/modules/remote/manual/latest/contexts.html "Groovy Remote Control - Command Context") that is shared for all commands in a given chain.
+
+This plugin prepoluates the context with two variables:
+
+* `ctx` - The main application context
+* `app` - The grails application object
+
+This allows you to access beans (such as services) from commands…
+
+    remote.exec { ctx.someService.doSomeServiceStuff() }
+
 #### More Examples
 
 To see some more usage examples of a remote control, see the [demonstration test case](http://github.com/alkemist/grails-remote-control/blob/master/test/functional/SmokeTests.groovy) in the project.
