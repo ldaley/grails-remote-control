@@ -123,6 +123,20 @@ This plugin prepoluates the context with two variables:
 This allows you to access beans (such as services) from commands…
 
     remote.exec { ctx.someService.doSomeServiceStuff() }
+    
+##### Populating The Context
+
+You can also set values in the context. This is sometimes useful when using a command chain where an initial command sets up some context.
+
+    def getPersonWithId = { person = Person.get(it) }
+    def doubleAge = { person.age *= 2 }
+    def savePerson = { person.save(flush: true) }
+    
+    def doubleAgeOfPersonWithId(id) {
+        remote.exec(getPersonWithId.curry(id), doubleAge, savePerson)
+    }
+    
+    doubleAgeOfPersonWithId(10)
 
 #### More Examples
 
