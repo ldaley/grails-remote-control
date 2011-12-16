@@ -9,19 +9,20 @@ grails.project.dependency.resolution = {
 		grailsHome()
 		mavenLocal()
 		mavenCentral()
-		mavenRepo "https://nexus.codehaus.org/content/repositories/releases"
-		
-		
 	}
 	dependencies {
-		compile "org.codehaus.groovy.modules.remote:remote-transport-http:0.2"
+		compile "org.codehaus.groovy.modules.remote:remote-transport-http:0.3"
 	}
 	plugins {
 		compile (
 			":tomcat:$grailsVersion",
 			":hibernate:$grailsVersion",
-			":spock:0.5-groovy-1.7"
+			":spock:0.6-SNAPSHOT",
 		) {
+			export = false
+		}
+		
+		build(":release:1.0.0") {
 			export = false
 		}
 	}
