@@ -228,31 +228,15 @@ class SmokeTests extends GroovyTestCase {
 		}
 	}
 	
-	/**
-	 * For some reason that is currently unknown, you cannot set properties in 
-	 * command closures. It causes a NoClassDefFoundError. A workaround is to use
-	 * the setProperty() method of GroovyObject or the setter.
-	 */
-	void testCannotSetProperties() {
-		shouldFailWithCause(NoClassDefFoundError) {
-			remote.exec { theService.value = 1 }
-		}
-		
+	void testCanSetProperties() {
+		remote.exec { ctx.theService.value = 1 }
 		remote.exec { ctx.theService.setValue(1) }
 		remote.exec { ctx.theService.setProperty('value', 1) }
 	}
 	
-	/**
-	 * For some reason that is currently unknown, you cannot call methods dynamically 
-	 * in command closures. It causes a NoClassDefFoundError. A workaround is to use
-	 * the invokeMethod() method of GroovyObject.
-	 */
-	void testCannotCallMethodsDynamicaly() {
+	void testCanCallMethodsDynamicaly() {
 		def methodName = "setValue"
-		shouldFailWithCause(NoClassDefFoundError) {
-			remote.exec { ctx.theService."$methodName"(1) }
-		}
-		
+		remote.exec { ctx.theService."$methodName"(1) }
 		remote.exec { ctx.theService.invokeMethod(methodName, 1) }
 	}
 	
