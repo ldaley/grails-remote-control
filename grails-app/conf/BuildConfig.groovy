@@ -17,7 +17,7 @@ grails.project.dependency.resolution = {
 		compile (
 			":tomcat:$grailsVersion",
 			":hibernate:$grailsVersion",
-			":spock:0.6-SNAPSHOT",
+			":spock:0.6",
 		) {
 			export = false
 		}
