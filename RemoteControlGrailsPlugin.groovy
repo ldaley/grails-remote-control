@@ -52,14 +52,18 @@ class RemoteControlGrailsPlugin {
 			} 
 		} else {
 			log.debug("remote control servlet is disabled")
+			println("remote control servlet is disabled")
 		}
 	}
 	
 	boolean isEnabled(application) {
 		def configValue = application.config.remoteControl.enabled
+    println "Config value: $configValue"
 		if (configValue instanceof ConfigObject) {
+      println "Instance of configobject. Getting default for env."
 			getDefaultIsEnabledForEnvironment()
 		} else {
+      println "Returning config value"
 			configValue
 		}
 	}

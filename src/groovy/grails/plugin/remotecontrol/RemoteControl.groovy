@@ -17,31 +17,43 @@ package grails.plugin.remotecontrol
 
 import grails.util.BuildSettingsHolder
 import groovyx.remote.transport.http.HttpTransport
+import groovyx.remote.client.Transport
+
 
 /**
  * Adds grails specific convenient no arg constructor
  */
 class RemoteControl extends groovyx.remote.client.RemoteControl {
 
-	static public final RECEIVER_PATH = "grails-remote-control"
-	 
+	static public final RECEIVER_PATH = "grails-remote-control"  	 
 	static defaultReceiverAddress
-	
+
 	RemoteControl() {
 		super(new HttpTransport(getFunctionalTestReceiverAddress(), Thread.currentThread().contextClassLoader), Thread.currentThread().contextClassLoader)
 	}
+
+  RemoteControl(Transport transport){
+    super(transport, Thread.currentThread().contextClassLoader)
+  }
 	
 	private static getFunctionalTestReceiverAddress() {
 		def base = getFunctionalTestBaseUrl()
 		if (!base) {
 			throw new IllegalStateException("Cannot get receiver address for functional testing as functional test base URL is not set. Are you calling this from a functional test?")
-		}
-		
+		}		
 		base.endsWith("/") ? base + RECEIVER_PATH : base + "/" + RECEIVER_PATH
 	}
 	
 	private static getFunctionalTestBaseUrl() {
 		BuildSettingsHolder.settings?.functionalTestBaseUrl
 	}
+
+  static def getInstance(Boolean httpsNoVerify=false){
+    if(httpsNoVerify){
+      new RemoteControl(new HttpsNoVerifyTransport(getFunctionalTestReceiverAddress(), Thread.currentThread().contextClassLoader))
+    } else {
+      new RemoteControl(new HttpTransport(getFunctionalTestReceiverAddress(), Thread.currentThread().contextClassLoader))
+    }
+  }
 
 }
