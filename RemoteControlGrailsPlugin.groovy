@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grails.util.Environment
 
 class RemoteControlGrailsPlugin {
 
-	def version = "1.3"
+	def version = "1.4"
 	def grailsVersion = "1.3.5 > *"
 	def dependsOn = [:]
 	def pluginExcludes = ["grails-app/**/*", "scripts/**/*"]
@@ -29,46 +28,25 @@ class RemoteControlGrailsPlugin {
 	def documentation = "http://grails.org/plugin/remote-control"
 
 	def doWithWebDescriptor = { webXml ->
-		if (isEnabled(application)) {
-			log.info("remote control servlet is enabled")
-			def remoteControlClass = getClass().classLoader.loadClass('grails.plugin.remotecontrol.RemoteControl')
+		def remoteControlClass = getClass().classLoader.loadClass('grails.plugin.remotecontrol.RemoteControl')
 
-			def servlets = webXml.servlet 
-			def lastServlet = servlets[servlets.size() - 1] 
-			lastServlet + { 
-				servlet { 
-					'servlet-name'('grails-remote-control') 
-					'servlet-class'('grails.plugin.remotecontrol.RemoteControlServlet') 
-					'load-on-startup'(1) 
-				} 
+		def servlets = webXml.servlet 
+		def lastServlet = servlets[servlets.size() - 1] 
+		lastServlet + { 
+			servlet { 
+				'servlet-name'('grails-remote-control') 
+				'servlet-class'('grails.plugin.remotecontrol.RemoteControlServlet') 
+				'load-on-startup'(1) 
 			} 
-			def mappings = webXml.'servlet-mapping' 
-			def lastMapping = mappings[mappings.size() - 1] 
-			lastMapping + { 
-				'servlet-mapping' { 
-					'servlet-name'('grails-remote-control') 
-					'url-pattern'("/${remoteControlClass.RECEIVER_PATH}") 
-				} 
+		} 
+		def mappings = webXml.'servlet-mapping' 
+		def lastMapping = mappings[mappings.size() - 1] 
+		lastMapping + { 
+			'servlet-mapping' { 
+				'servlet-name'('grails-remote-control') 
+				'url-pattern'("/${remoteControlClass.RECEIVER_PATH}") 
 			} 
-		} else {
-			log.debug("remote control servlet is disabled")
-		}
+		} 
 	}
 	
-	boolean isEnabled(application) {
-		def configValue = application.config.remoteControl.enabled
-		if (configValue instanceof ConfigObject) {
-			getDefaultIsEnabledForEnvironment()
-		} else {
-			configValue
-		}
-	}
-	
-	boolean getDefaultIsEnabledForEnvironment() {
-		if (Environment.current == Environment.TEST) {
-			true
-		} else {
-			false
-		}
-	}
 }

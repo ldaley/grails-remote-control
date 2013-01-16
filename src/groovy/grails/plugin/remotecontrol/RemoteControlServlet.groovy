@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *	   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ import javax.servlet.*
 import javax.servlet.http.*
 import groovyx.remote.server.Receiver
 import org.codehaus.groovy.grails.commons.ApplicationHolder
+import grails.util.Environment
 
 class RemoteControlServlet extends groovyx.remote.transport.http.RemoteControlServlet {
 	
@@ -33,12 +34,38 @@ class RemoteControlServlet extends groovyx.remote.transport.http.RemoteControlSe
 		}
 	}
 	
+	protected boolean validateRequest(HttpServletRequest request, HttpServletResponse response) {
+		if (!isEnabled()) {
+			response.sendError(404, "Remote control disabled")
+			return false
+		}
+
+		return super.validateRequest(request, response)
+	}
+	
 	def getGrailsApplication() {
 		ApplicationHolder.application
 	}
 	
 	protected Receiver createReceiver() {
 		new Receiver(grailsApplication.classLoader, [app: grailsApplication, ctx: grailsApplication.mainContext])
+	}
+	
+	boolean isEnabled() {
+		def configValue = grailsApplication.config.remoteControl.enabled
+		if (configValue instanceof ConfigObject) {
+			getDefaultIsEnabledForEnvironment()
+		} else {
+			configValue
+		}
+	}
+	
+	boolean getDefaultIsEnabledForEnvironment() {
+		if (Environment.current == Environment.TEST) {
+			true
+		} else {
+			false
+		}
 	}
 	
 }
