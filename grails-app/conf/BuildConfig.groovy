@@ -11,7 +11,9 @@ grails.project.dependency.resolution = {
 		mavenCentral()
 	}
 	dependencies {
-		compile "org.codehaus.groovy.modules.remote:remote-transport-http:0.5"
+		compile "org.codehaus.groovy.modules.remote:remote-transport-http:0.5", {
+			excludes "servlet-api"
+		}
 	}
 	plugins {
 		compile (
