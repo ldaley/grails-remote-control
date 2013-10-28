@@ -163,3 +163,26 @@ Which will execute the tests against that remote instance.
 By default, the servlet that accepts remote commands is only configured when the application is started in the **test** environment. This means that it is not possible to use a remote with a production application out of the box.
 
 However, if you do want to enable the remote control servlet that accepts commands in an environment other than production you can set `remoteControl.enabled` to `true` in the application config for that environment.
+
+### Testing applications with catch-all URL Mappings
+
+Your remote control will not work if you have a catch-all URL mapping, e.g.
+
+	class UrlMappings {
+		static mappings = {
+			"/**"(controller:'boss')
+		}
+	}
+
+You will see `groovyx.remote.RemoteControlException: Error sending command chain`.  The fix is to add the following line to URL Mappings:
+
+	static excludes = ['/grails-remote-control']
+
+Your URL mappings should now look like:
+
+	class UrlMappings {
+		static excludes = ['/grails-remote-control']
+		static mappings = {
+			"/**"(controller:'boss')
+		}
+	}
