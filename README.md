@@ -9,28 +9,28 @@ The plugin uses the [Groovy Remote Control](http://groovy.codehaus.org/modules/r
 ### The Test
 
 We have written an application and now want to write some functional tests. In these tests we need to create some test data. This might look something like…
-
-    class MyFunctionalTest extends GroovyTestCase {
+```groovy
+class MyFunctionalTest extends GroovyTestCase {
         
-        def testIt() {
-            def person = new Person(name: "Me")
-            person.save(flush: true)
-            
-            // Somehow make some HTTP request and test that person is in the DB
-            
-            person.delete(flush: true)
-        }
+    def testIt() {
+        def person = new Person(name: "Me")
+        person.save(flush: true)
         
+        // Somehow make some HTTP request and test that person is in the DB
+            
+        person.delete(flush: true)
     }
-
+        
+}
+```
 That will work if we are running our tests in the same JVM as the running application, which is the default behaviour…
-
-    grails test-app functional:
-
+```sh
+grails test-app functional:
+```
 However, it won't work if your tests ARE NOT in the same JVM, as is the case with testing against a WAR deployment…
-
-    grails test-app functional: -war
-    
+```sh
+grails test-app functional: -war
+```    
 This is going to fail because in the JVM that is running the tests there is no Grails application (the WAR is run in a forked JVM to be closer to a production like environment).
 
 ### Existing Solutions
@@ -40,76 +40,77 @@ The most common existing workaround for this problem is to write a special contr
 ### Using a remote control
 
 The remote control plugin solves this problem by allowing you to define closures to be executed in the application you are testing. This is best illustrated by rewriting the above test…
-
-    import grails.plugin.remotecontrol.RemoteControl
+```groovy
+import grails.plugin.remotecontrol.RemoteControl
     
-    class MyFunctionalTest extends GroovyTestCase {
+class MyFunctionalTest extends GroovyTestCase {
         
-        def remote = new RemoteControl()
-        
-        def testIt() {
-            def id = remote {
-                def person = new Person(name: "Me")
-                person.save()
-                person.id
-            }
+    def remote = new RemoteControl()
+    
+    def testIt() {
+        def id = remote {
+            def person = new Person(name: "Me")
+            person.save()
+            person.id
+        }
             
-            // Somehow make some HTTP request and test that person is in the DB
+        // Somehow make some HTTP request and test that person is in the DB
             
-            remote {
-                Person.get(id).delete()
-            }
+        remote {
+            Person.get(id).delete()
         }
     }
-
+}
+```
 This test will now working when testing agains a WAR or a local version. The closures passed to `remote` are sent over HTTP to the running application and executed there, so it doesn't matter where the application is.
 
 #### Chaining
 
 Closures can be *chained*, with the return value of the previous closure being passed as an argument to the next closure in the chain. This is done on the server side, so it's ok for a closure to return a non serialisable value to be given to the next one. An example use for this would be reusing a closure to fetch some value, and then using another closure to process it.
-
-    import grails.plugin.remotecontrol.RemoteControl
+```groovy
+import grails.plugin.remotecontrol.RemoteControl
     
-    class MyFunctionalTest extends GroovyTestCase {
+class MyFunctionalTest extends GroovyTestCase {
         
-        def remote = new RemoteControl()
+    def remote = new RemoteControl()
         
-        def getPerson = { id -> Person.get(id) }
+    def getPerson = { id -> Person.get(id) }
         
-        def modifyPerson(id, Closure modifications) {
-            // pass the result of the getPerson command to the 
-            // given modifications command
-            remote.exec(getPerson.curry(id), modifications) 
+    def modifyPerson(id, Closure modifications) {
+        // pass the result of the getPerson command to the 
+        // given modifications command
+        remote.exec(getPerson.curry(id), modifications) 
+    }
+        
+    def testIt() {
+        def id = remote {
+            def person = new Person(name: "Me")
+            person.save()
+            person.id
+        }
+            
+        // Somehow make some HTTP request and test that person is in the DB
+            
+        // Change the name
+        modifyPerson(id) { 
+            it.setName("New Name")
+            it.save(flush: true)
+            null // return must be serialisable
         }
         
-        def testIt() {
-            def id = remote {
-                def person = new Person(name: "Me")
-                person.save()
-                person.id
-            }
-            
-            // Somehow make some HTTP request and test that person is in the DB
-            
-            // Change the name
-            modifyPerson(id) { 
-                it.setName("New Name")
-                it.save(flush: true)
-                null // return must be serialisable
-            }
-            
-            // Somehow make some HTTP request and test that the person's name has changed
-            
-            // Cleanup
-            modifyPerson(id) {
-                it.delete()
-            }
+        // Somehow make some HTTP request and test that the person's name has changed
+        
+        // Cleanup
+        modifyPerson(id) {
+            it.delete()
         }
     }
-
+}
+```
 A more concise example of how values are passed to the next command in the chain would be…
-
-    assert remote.exec({ 1 }, { it + 1 }, { it + 1 }) == 3
+```groovy
+assert remote.exec({ 1 }, { it + 1 }, { it + 1 }) == 3
+```
 
 #### Context
 
@@ -121,22 +122,24 @@ This plugin prepoluates the context with two variables:
 * `app` - The grails application object
 
 This allows you to access beans (such as services) from commands…
+```groovy
+remote.exec { ctx.someService.doSomeServiceStuff() }
+```
 
-    remote.exec { ctx.someService.doSomeServiceStuff() }
-    
 ##### Populating The Context
 
 You can also set values in the context. This is sometimes useful when using a command chain where an initial command sets up some context.
-
-    def getPersonWithId = { person = Person.get(it) }
-    def doubleAge = { person.age *= 2 }
-    def savePerson = { person.save(flush: true) }
+```groovy
+def getPersonWithId = { person = Person.get(it) }
+def doubleAge = { person.age *= 2 }
+def savePerson = { person.save(flush: true) }
     
-    def doubleAgeOfPersonWithId(id) {
-        remote.exec(getPersonWithId.curry(id), doubleAge, savePerson)
-    }
+def doubleAgeOfPersonWithId(id) {
+    remote.exec(getPersonWithId.curry(id), doubleAge, savePerson)
+}
     
-    doubleAgeOfPersonWithId(10)
+doubleAgeOfPersonWithId(10)
+```
 
 #### More Examples
 
@@ -151,10 +154,11 @@ Let's say that we want to functionally test our application on different flavour
 * http://appsrv3.test.my.org/myapp
 
 If we have the remote-control plugin installed and have written our tests to use it, we could simply run:
-
-    grails test-app functional: -baseUrl=http://appsrv1.test.my.org/myapp
-    grails test-app functional: -baseUrl=http://appsrv2.test.my.org/myapp
-    grails test-app functional: -baseUrl=http://appsrv3.test.my.org/myapp
+```sh
+grails test-app functional: -baseUrl=http://appsrv1.test.my.org/myapp
+grails test-app functional: -baseUrl=http://appsrv2.test.my.org/myapp
+grails test-app functional: -baseUrl=http://appsrv3.test.my.org/myapp
+```
 
 Which will execute the tests against that remote instance.
 
