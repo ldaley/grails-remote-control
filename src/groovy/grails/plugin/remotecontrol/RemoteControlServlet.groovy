@@ -18,7 +18,7 @@ package grails.plugin.remotecontrol
 import javax.servlet.*
 import javax.servlet.http.*
 import groovyx.remote.server.Receiver
-import org.codehaus.groovy.grails.commons.ApplicationHolder
+import grails.util.Holders
 import grails.util.Environment
 
 class RemoteControlServlet extends groovyx.remote.transport.http.RemoteControlServlet {
@@ -44,7 +44,7 @@ class RemoteControlServlet extends groovyx.remote.transport.http.RemoteControlSe
 	}
 	
 	def getGrailsApplication() {
-		ApplicationHolder.application
+		Holders.grailsApplication
 	}
 	
 	protected Receiver createReceiver() {
