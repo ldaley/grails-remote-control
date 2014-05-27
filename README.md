@@ -2,7 +2,7 @@ The Grails remote-control plugin allows you to execute code inside a remote Grai
 
 The plugin uses the [Groovy Remote Control](http://groovy.codehaus.org/modules/remote/ "Groovy Remote Control") library.
 
-**This plugin requires Grails 1.3.5 and will not work on earlier versions**
+**This plugin requires Grails 2.0.0 and will not work on earlier versions**
 
 ## An Example
 
