@@ -17,11 +17,12 @@ package grails.plugin.remotecontrol
 
 import javax.servlet.*
 import javax.servlet.http.*
-import groovyx.remote.server.Receiver
+import io.remotecontrol.server.Receiver
+import io.remotecontrol.groovy.server.ClosureReceiver
 import grails.util.Holders
 import grails.util.Environment
 
-class RemoteControlServlet extends groovyx.remote.transport.http.RemoteControlServlet {
+class RemoteControlServlet extends io.remotecontrol.transport.http.RemoteControlServlet {
 	
 	void doExecute(InputStream input, OutputStream output) {
 		def persistenceInterceptor = grailsApplication?.mainContext?.persistenceInterceptor
@@ -48,7 +49,7 @@ class RemoteControlServlet extends groovyx.remote.transport.http.RemoteControlSe
 	}
 	
 	protected Receiver createReceiver() {
-		new Receiver(grailsApplication.classLoader, [app: grailsApplication, ctx: grailsApplication.mainContext])
+		new ClosureReceiver(grailsApplication.classLoader, [app: grailsApplication, ctx: grailsApplication.mainContext])
 	}
 	
 	boolean isEnabled() {

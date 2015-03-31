@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 import grails.plugin.remotecontrol.RemoteControl
-import groovyx.remote.client.RemoteException
-import groovyx.remote.client.UnserializableReturnException
+import io.remotecontrol.client.RemoteException
+import io.remotecontrol.client.UnserializableReturnException
+import io.remotecontrol.UnserializableCommandException
 
 /**
  * This test case shows how to use the remote control and some of it's limitations
@@ -134,7 +135,7 @@ class SmokeTests extends GroovyTestCase {
 	 */
 	void testAccessingNonSerializableLexicalScope() {
 		def a = System.out
-		shouldFail(NotSerializableException) {
+		shouldFail(UnserializableCommandException) {
 			remote.exec { a }
 		}
 	}
@@ -178,7 +179,7 @@ class SmokeTests extends GroovyTestCase {
 	 * Like everything else, currying args must be serialisable
 	 */
 	void testCurryingArgsMustBeSerializable() {
-		shouldFail(NotSerializableException) {
+		shouldFail(UnserializableCommandException) {
 			remote.exec({ it }.curry(System.out))
 		}
 	}

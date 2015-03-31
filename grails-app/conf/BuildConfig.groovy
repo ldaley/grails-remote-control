@@ -11,9 +11,11 @@ grails.project.dependency.resolution = {
 		grailsHome()
 		mavenLocal()
 		mavenCentral()
+		mavenRepo "http://dl.bintray.com/alkemist/maven"
 	}
 	dependencies {
-		compile "org.codehaus.groovy.modules.remote:remote-transport-http:0.5", {
+		compile "io.remotecontrol:remote-core:0.7"
+		compile "io.remotecontrol:remote-transport-http:0.7", {
 			excludes "servlet-api"
 		}
 	}
@@ -21,7 +23,7 @@ grails.project.dependency.resolution = {
 		compile (
 			":tomcat:$grailsVersion",
 			":hibernate:$grailsVersion",
-			":spock:0.6",
+			":spock:0.6"
 		) {
 			export = false
 		}
