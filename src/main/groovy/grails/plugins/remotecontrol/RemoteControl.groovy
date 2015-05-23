@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package grails.plugin.remotecontrol
+package grails.plugins.remotecontrol
 
-import grails.util.BuildSettingsHolder
+// import grails.util.BuildSettingsHolder
 import io.remotecontrol.transport.http.HttpTransport
 
 /**
@@ -41,7 +41,9 @@ class RemoteControl extends io.remotecontrol.groovy.client.RemoteControl {
 	}
 	
 	private static getFunctionalTestBaseUrl() {
-		BuildSettingsHolder.settings?.functionalTestBaseUrl
+		//TODO: Temporary fix to test plugin first
+		//BuildSettingsHolder.settings?.functionalTestBaseUrl
+		'http://localhost:8080'
 	}
 
 }

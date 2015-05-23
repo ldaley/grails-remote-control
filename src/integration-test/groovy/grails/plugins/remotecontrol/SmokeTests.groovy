@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grails.plugin.remotecontrol.RemoteControl
+package grails.plugins.remotecontrol
+
+import io.remotecontrol.UnserializableCommandException
 import io.remotecontrol.client.RemoteException
 import io.remotecontrol.client.UnserializableReturnException
-import io.remotecontrol.UnserializableCommandException
 
 /**
  * This test case shows how to use the remote control and some of it's limitations
