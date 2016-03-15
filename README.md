@@ -1,6 +1,6 @@
 The Grails remote-control plugin allows you to execute code inside a remote Grails application. The typical use case for this is for functional testing where you are testing an application inside a separate JVM and therefore do not have easy access to the application runtime. If you can access the application runtime environment then you can do things like change service parameter values, create and delete domain data and so forth.
 
-The plugin uses the [Groovy Remote Control](http://groovy.codehaus.org/modules/remote/ "Groovy Remote Control") library.
+The plugin uses the [Groovy Remote Control](https://github.com/alkemist/remote-control "Groovy Remote Control") library.
 
 **This plugin requires Grails 2.0.0 and will not work on earlier versions**
 
