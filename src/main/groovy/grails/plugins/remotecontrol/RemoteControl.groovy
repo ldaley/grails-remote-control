@@ -15,7 +15,7 @@
  */
 package grails.plugins.remotecontrol
 
-// import grails.util.BuildSettingsHolder
+import grails.util.BuildSettings
 import io.remotecontrol.transport.http.HttpTransport
 
 /**
@@ -41,9 +41,7 @@ class RemoteControl extends io.remotecontrol.groovy.client.RemoteControl {
 	}
 	
 	private static getFunctionalTestBaseUrl() {
-		//TODO: Temporary fix to test plugin first
-		//BuildSettingsHolder.settings?.functionalTestBaseUrl
-		'http://localhost:8080'
+		System.getProperty (BuildSettings.FUNCTIONAL_BASE_URL_PROPERTY)
 	}
 
 }
