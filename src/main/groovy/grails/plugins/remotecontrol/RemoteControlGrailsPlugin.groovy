@@ -15,79 +15,64 @@
  */
 package grails.plugins.remotecontrol
 
-import grails.plugins.*
+import grails.plugins.Plugin
+import grails.util.BuildSettings
+import grails.web.mapping.LinkGenerator
+import org.apache.commons.logging.LogFactory
 import org.springframework.boot.context.embedded.ServletRegistrationBean
 
 class RemoteControlGrailsPlugin extends Plugin {
 
-	def version = "2.1.0-SNAPSHOT"
-	// the version or versions of Grails the plugin is designed for
-	def grailsVersion = "3.0.1 > *"
-	// resources that are excluded from plugin packaging
-	def pluginExcludes = [
-			"grails-app/**/*",
-			"src/main/scripts/**/*"
-	]
+    private static LOG = LogFactory.getLog(this)
 
-	def title = "Grails Remote Control" // Headline display name of the plugin
-	def author = "Luke Daley"
-	def authorEmail = "ld@ldaley.com"
-	def description = '''\
+    def grailsVersion = "3.1.4 > *"
+    def pluginExcludes = [
+            "grails-app/**/*",
+    ]
+
+    def title = "Grails Remote Control" // Headline display name of the plugin
+    def author = "Luke Daley"
+    def authorEmail = "ld@ldaley.com"
+    def description = '''\
 Remotely control a Grails application (for functional testing)
 '''
-	def profiles = ['web']
+    def profiles = ['web']
+    def documentation = "http://grails.org/plugin/remote-control"
+    def license = "APACHE"
 
-	// URL to the plugin's documentation
-	def documentation = "http://grails.org/plugin/remote-control"
+    def developers = [[name: "Luke Daley", email: "ld@ldaley.com"],
+                      [name: "Puneet Behl", email: "puneet.behl007@gmail.com"]
+    ]
 
-	// Extra (optional) plugin metadata
+    def issueManagement = [system: "GitHub", url: "https://github.com/alkemist/grails-remote-control/issues"]
+    def scm = [url: "https://github.com/alkemist/grails-remote-control/issues/"]
 
-	// License: one of 'APACHE', 'GPL2', 'GPL3'
-//    def license = "APACHE"
+    Closure doWithSpring() {
+        { ->
+            'grails-remote-control'(ServletRegistrationBean, new RemoteControlServlet(), "/${RemoteControl.RECEIVER_PATH}") {
+                name = 'grails-remote-control'
+                loadOnStartup = 1
+            }
+        }
+    }
 
-	// Details of company behind the plugin (if there is one)
-//    def organization = [ name: "My Company", url: "http://www.my-company.com/" ]
+    void doWithApplicationContext() {
+        String baseUrl = getBaseUrl()
+        System.setProperty(BuildSettings.FUNCTIONAL_BASE_URL_PROPERTY, baseUrl)
+        LOG.info "using grails application runing at ${baseUrl}"
+    }
 
-	// Any additional developers beyond the author specified above.
-	def developers = [ [ name: "Luke Daley", email: "ld@ldaley.com" ],
-					   [name: "Puneet Behl", email: "puneet.behl007@gmail.com"]
-	]
+    private String getBaseUrl() {
+        String baseUrl = System.getProperty('baseUrl')
+        if (!baseUrl) {
+            baseUrl = getDefaultBaseUrl()
+        }
+        baseUrl
+    }
 
-
-	// Location of the plugin's issue tracker.
-//    def issueManagement = [ system: "JIRA", url: "http://jira.grails.org/browse/GPMYPLUGIN" ]
-
-	// Online location of the plugin's browseable source code.
-//    def scm = [ url: "http://svn.codehaus.org/grails-plugins/" ]
-
-	Closure doWithSpring() { {->
-		def remoteControlClass = getClass().classLoader.loadClass('grails.plugins.remotecontrol.RemoteControl')
-		'grails-remote-control'(ServletRegistrationBean, new RemoteControlServlet(), "/${remoteControlClass.RECEIVER_PATH}") {
-			loadOnStartup = 1
-		}
-	}
-	}
-
-	void doWithDynamicMethods() {
-		// TODO Implement registering dynamic methods to classes (optional)
-	}
-
-	void doWithApplicationContext() {
-		// TODO Implement post initialization spring config (optional)
-	}
-
-	void onChange(Map<String, Object> event) {
-		// TODO Implement code that is executed when any artefact that this plugin is
-		// watching is modified and reloaded. The event contains: event.source,
-		// event.application, event.manager, event.ctx, and event.plugin.
-	}
-
-	void onConfigChange(Map<String, Object> event) {
-		// TODO Implement code that is executed when the project configuration changes.
-		// The event is the same as for 'onChange'.
-	}
-
-	void onShutdown(Map<String, Object> event) {
-		// TODO Implement code that is executed when the application shuts down (optional)
-	}
+    private String getDefaultBaseUrl() {
+        def ctx = grailsApplication.mainContext
+        LinkGenerator linkGenerator = ctx.getBean("grailsLinkGenerator", LinkGenerator)
+        linkGenerator.serverBaseURL
+    }
 }
