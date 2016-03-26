@@ -1,5 +1,0 @@
-class TheService {
-
-	def value
-
-}
