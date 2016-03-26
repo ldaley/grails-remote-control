@@ -8,6 +8,7 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+        classpath "org.grails.plugins:hibernate4:5.0.2"
     }
 }
 
@@ -52,6 +53,10 @@ dependencies {
         exclude module: "servlet-api"
     }
 
+    runtime 'org.grails.plugins:hibernate4'
+    runtime 'org.hibernate:hibernate-ehcache'
+    runtime "com.h2database:h2"
+
     console "org.grails:grails-console"
     profile "org.grails.profiles:web-plugin:3.1.4"
     provided "org.grails:grails-plugin-services"
@@ -65,6 +70,13 @@ dependencies {
 task wrapper(type: Wrapper) {
     gradleVersion = gradleWrapperVersion
 }
+
+[integrationTest].each { runTask ->
+    configure(runTask) {
+        systemProperties System.properties
+    }
+}
+
 grailsPublish {
     // TODO: Provide values here
     user = 'user'
