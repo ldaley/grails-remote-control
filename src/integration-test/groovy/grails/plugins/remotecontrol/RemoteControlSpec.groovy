@@ -55,7 +55,7 @@ class RemoteControlSpec extends Specification {
 
     void "the delegate of command contains the app context under 'ctx' so we can access any beans defined there"() {
         expect:
-        remote.exec { ctx.grailsApplication.config.info.app.name } == 'grails-remote-control'
+        remote.exec { ctx.grailsApplication.config.info.app.name } == 'remote-control'
     }
 
     void "a command can create and manipulate domain data in a hibernate session that is flushed at the end"() {
