@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 class RemoteControlServlet extends io.remotecontrol.transport.http.RemoteControlServlet {
-	
+
 	void doExecute(InputStream input, OutputStream output) {
 		def persistenceInterceptor = grailsApplication?.mainContext?.persistenceInterceptor
 		persistenceInterceptor?.init()
@@ -35,7 +35,7 @@ class RemoteControlServlet extends io.remotecontrol.transport.http.RemoteControl
 			persistenceInterceptor?.destroy()
 		}
 	}
-	
+
 	protected boolean validateRequest(HttpServletRequest request, HttpServletResponse response) {
 		if (!isEnabled()) {
 			response.sendError(404, "Remote control disabled")
@@ -44,24 +44,24 @@ class RemoteControlServlet extends io.remotecontrol.transport.http.RemoteControl
 
 		return super.validateRequest(request, response)
 	}
-	
+
 	def getGrailsApplication() {
 		Holders.grailsApplication
 	}
-	
+
 	protected Receiver createReceiver() {
 		new ClosureReceiver(grailsApplication.classLoader, [app: grailsApplication, ctx: grailsApplication.mainContext])
 	}
-	
+
 	boolean isEnabled() {
 		def configValue = grailsApplication.config.remoteControl.enabled
-		if (configValue instanceof ConfigObject) {
-			getDefaultIsEnabledForEnvironment()
-		} else {
+		if (configValue instanceof Boolean) {
 			configValue
+		} else {
+			getDefaultIsEnabledForEnvironment()
 		}
 	}
-	
+
 	boolean getDefaultIsEnabledForEnvironment() {
 		if (Environment.current == Environment.TEST) {
 			true
