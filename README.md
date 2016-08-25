@@ -48,7 +48,7 @@ class MyFunctionalTest extends GroovyTestCase {
     def remote = new RemoteControl()
     
     def testIt() {
-        def id = remote {
+        def id = remote.exec {
             def person = new Person(name: "Me")
             person.save()
             person.id
@@ -56,7 +56,7 @@ class MyFunctionalTest extends GroovyTestCase {
             
         // Somehow make some HTTP request and test that person is in the DB
             
-        remote {
+        remote.exec {
             Person.get(id).delete()
         }
     }
@@ -83,7 +83,7 @@ class MyFunctionalTest extends GroovyTestCase {
     }
         
     def testIt() {
-        def id = remote {
+        def id = remote.exec {
             def person = new Person(name: "Me")
             person.save()
             person.id
